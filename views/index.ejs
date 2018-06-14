@@ -1,0 +1,108 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <meta http-equiv="X-UA-Compatible" content="ie=edge">
+    <title>Document</title>
+    <link rel="stylesheet" href="https://maxcdn.bootstrapcdn.com/bootstrap/3.3.7/css/bootstrap.min.css">
+    <script src="https://code.jquery.com/jquery-3.3.1.min.js"></script>
+</head>
+<body>
+    <div class="row">
+        <br><br><br>
+        <div class="col-md-4 col-md-offset-2">
+
+            <div class="form-group">
+                    <select id="tinh" class="form-control">
+                        <%if (session_temp.tinh){%>
+                            <option value="<%= session_temp.tinh.id%>"><%= session_temp.tinh.tinh %></option>
+                        <%} else{%>
+                            <option selected="selected">Chọn Tỉnh/Thành</option>
+                        <%}%>
+                        <% data.forEach(item => {%>
+                            <option value="<%= item.ID%>"><%= item.Title %></option>
+                        <%})%>
+                    </select>
+            </div>
+            <div class="form-group">
+                    <select id="huyen" class="form-control"></select>
+            </div>
+            
+            <div class="form-group">
+                    <select id="xa" class="form-control"></select>
+            </div>
+            <h1>
+                    <strong id="tinh_session">
+                       <%if (session_temp.tinh){%>
+                            <%= session_temp.tinh.tinh%>
+                        <%} %>
+                   </strong>
+                   <strong id="huyen_session">
+                        <%if (session_temp.huyen){%>
+                           , <%= session_temp.huyen.huyen%>
+                        <%} %>
+                   </strong>
+                   <strong id="xa_session">
+                        <%if (session_temp.xa){%>
+                            , <%= session_temp.xa.xa%>
+                        <%} %>
+                   </strong> 
+            </h1>
+        </div>
+    </div>
+    <script>
+        $(document).ready(function(){
+            if ("<%=session_temp%>")
+            {
+                const data = "<%=session_temp%>";
+                // console.log(typeof(JSON.parse(data)));
+            }
+            $('#tinh').change(function(e){
+                const id_tinh = $('#tinh option:selected').val();
+                const tinh = $('#tinh option:selected').text();
+                $('#tinh_session').text(tinh);
+                $.get(`/lay-huyen-cua-tinh/${id_tinh}/${tinh}`, function(data, status){
+                    const array_huyen = data.data;
+                    $('#huyen').empty();
+                    $('#huyen').append(`
+                          <option selected="selected">Chọn Quận/Huyện</option>
+                    `);
+                    array_huyen.forEach(item => {
+                        $('#huyen').append(`
+                            <option value="${item.ID}">${item.Title}</option>
+                        `);
+                    });
+                });
+            });
+
+            $('#huyen').change(function(e){
+                const id_huyen = $('#huyen option:selected').val();
+                const huyen = $('#huyen option:selected').text();
+                $('#huyen_session').text(huyen);
+                $.get(`/lay-xa-cua-tinh-huyen/${id_huyen}/${huyen}`, function(data, status){
+                    const array_xa = data.data;
+                    $('#xa').empty();
+                    $('#xa').append(`
+                          <option selected="selected">Chọn Xã/Phường</option>
+                    `);
+                    array_xa.forEach(item => {
+                        $('#xa').append(`
+                            <option value="${item.ID}">${item.Title}</option>
+                        `);
+                    });
+                });
+            })
+
+            $('#xa').change(function(e){
+                const id_xa = $('#xa option:selected').val();
+                const xa = $('#xa option:selected').text();
+                $('#xa_session').text(xa);
+                $.get(`/xa-api/${id_xa}/${xa}`, function(data, status){
+                    alert('SUCCESS');
+                });
+            })
+        });
+    </script>
+</body>
+</html>
